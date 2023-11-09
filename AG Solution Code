@@ -1,0 +1,99 @@
+Sub StockData():
+
+Dim ws As Worksheet
+
+For Each ws In ThisWorkbook.Worksheets
+
+Dim Ticker As String
+Dim YearlyChange As Double
+Dim OpenPrice As Double
+Dim PercentChange As Double
+Dim TotalVolume As LongLong
+TotalVolume = 0
+
+Dim SummaryRow As LongLong
+SummaryRow = 2
+
+LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+ws.Range("I1").Value = "Ticker"
+ws.Range("P1").Value = "Ticker"
+ws.Range("J1").Value = "Yearly Change"
+ws.Range("K1").Value = "Percent Change"
+ws.Range("L1").Value = "Total Stock Volume"
+ws.Range("O2").Value = "Greatest % Increase"
+ws.Range("O3").Value = "Greatest % Decrease"
+ws.Range("O4").Value = "Greatest Total Volume"
+ws.Range("Q1").Value = "Value"
+
+ws.Range("A1:Q4").Columns.AutoFit
+
+    For i = 2 To LastRow
+    'From learning assistant sunshine
+    If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then
+        OpenPrice = ws.Cells(i, 3).Value
+    End If
+    
+    If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    
+        Ticker = ws.Cells(i, 1).Value
+        TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+        YearlyChange = ws.Cells(i, 6).Value - OpenPrice
+        
+        If OpenPrice = 0 Then
+            PercentChange = 0
+        Else
+            PercentChange = YearlyChange / OpenPrice
+        End If
+    
+        ws.Range("I" & SummaryRow).Value = Ticker
+        ws.Range("L" & SummaryRow).Value = TotalVolume
+        ws.Range("J" & SummaryRow).Value = YearlyChange
+        ws.Range("K" & SummaryRow).Value = PercentChange
+    
+        If ws.Range("J" & SummaryRow).Value > 0 Then
+            ws.Range("J" & SummaryRow).Interior.ColorIndex = 4
+    
+        ElseIf ws.Range("J" & SummaryRow).Value = 0 Then
+            ws.Range("J" & SummaryRow).Interior.ColorIndex = 2
+    
+        Else
+            ws.Range("J" & SummaryRow).Interior.ColorIndex = 3
+        End If
+    
+        ws.Range("J" & SummaryRow).NumberFormat = "0.00"
+        ws.Range("K" & SummaryRow).NumberFormat = "0.00%"
+    
+        SummaryRow = SummaryRow + 1
+        TotalVolume = 0
+        YearlyChange = 0
+        PercentChange = 0
+    
+    Else
+        TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+    End If
+    
+        ws.Range("Q2") = WorksheetFunction.Max(ws.Range("K:K"))
+        ws.Range("Q3") = WorksheetFunction.Min(ws.Range("K:K"))
+        ws.Range("Q4") = WorksheetFunction.Max(ws.Range("L:L"))
+
+        ws.Range("Q2").NumberFormat = "0.00%"
+        ws.Range("Q3").NumberFormat = "0.00%"
+
+    If ws.Cells(i, 10).Value = ws.Range("Q2").Value Then
+        ws.Range("P2").Value = ws.Cells(i, 1).Value
+    End If
+    
+    If ws.Cells(i, 10).Value = ws.Range("Q3").Value Then
+        ws.Range("P3").Value = ws.Cells(i, 1).Value
+    End If
+    
+    If ws.Cells(i, 11).Value = ws.Range("Q4").Value Then
+        ws.Range("P4").Value = ws.Cells(i, 1).Value
+    End If
+
+    Next i
+
+Next ws
+
+End Sub
